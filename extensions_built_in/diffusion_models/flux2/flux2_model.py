@@ -261,7 +261,13 @@ class Flux2Model(BaseModel):
             is_guidance_distilled=self.flux2_is_guidance_distilled,
         )
 
-        pipeline = pipeline.to(self.device_torch)
+        if not self.model_config.layer_offloading:
+            pipeline = pipeline.to(self.device_torch)
+        else:
+            # manually move other parts to device
+            pipeline.vae = pipeline.vae.to(self.device_torch)
+            pipeline.text_encoder = pipeline.text_encoder.to(self.device_torch)
+            # tokenizer is not a torch module
 
         return pipeline
 

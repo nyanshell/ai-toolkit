@@ -361,6 +361,13 @@ class QwenImageModel(BaseModel):
             num_images_per_prompt=1,
         )
         pe = PromptEmbeds(prompt_embeds)
+        # pipeline returns None mask when all tokens are valid (no padding)
+        if prompt_embeds_mask is None:
+            prompt_embeds_mask = torch.ones(
+                prompt_embeds.shape[:2],
+                dtype=torch.int64,
+                device=prompt_embeds.device,
+            )
         pe.attention_mask = prompt_embeds_mask
         return pe
 

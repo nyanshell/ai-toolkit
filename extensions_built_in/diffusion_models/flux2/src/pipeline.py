@@ -70,6 +70,14 @@ class Flux2Pipeline(DiffusionPipeline):
         self.text_encoder_type = text_encoder_type
         self.is_guidance_distilled = is_guidance_distilled
 
+    @property
+    def _execution_device(self):
+        if hasattr(self.transformer, "_memory_manager"):
+            return self.transformer._memory_manager.process_device
+        if hasattr(self.transformer, "_memory_management_device"):
+            return self.transformer._memory_management_device
+        return super()._execution_device
+
     def format_input(
         self,
         txt: list[str],
